@@ -8,6 +8,10 @@ public class GridCell : MonoBehaviour
     public DraggableRank currentRank;                 //현재 칸에 있는 계급장    
     public SpriteRenderer cellRenderers;                //칸의 이미지 렌더러 
 
+    private void Awake()
+    {
+        cellRenderers = GetComponent<SpriteRenderer>(); //컴포넌트 참조 가져오기 
+    }
 
     //좌표 초기화
     public void Initialize(int gridX, int gridY)

@@ -44,17 +44,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InitializeGrid();
-
-        for(int i = 0; i < 4; i++)      //4개의 계급장 생성
-        {
-            SpawnNewRank();
-        }
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.D))
+        {
+            SpawnNewRank();
+        }
     }
 
     public DraggableRank CreateRankInCell(GridCell cell, int level)
@@ -111,5 +110,78 @@ public class GameManager : MonoBehaviour
         CreateRankInCell(emptyCell, rankLevel);     //3. 계급장 생성 및 설정
 
         return true;
+    }
+
+    public GridCell FindClosestCell(Vector3 position)       //가장 가까운 칸 찾기
+    {
+        for (int x = 0; x < gridWidth; x++)                 //1. 먼저 위치가 포함된 칸 확인
+        {
+            for(int y = 0; y < gridHeight; y++)
+            {
+                if (grid[x, y].ContainsPosition(position))
+                {
+                    return grid[x, y];
+                }
+            }
+        }
+
+        GridCell closestCell = null;                        //2. 없다면 가장 가까운 칸 찾기
+        float closestDistance = float.MaxValue;         
+
+        for(int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                float distance = Vector3.Distance(position, grid[x, y].transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestCell = grid[x, y];
+                }
+            }
+        }
+
+        if( closestDistance > cellSize * 2)         //너무 멀면 null 반환
+        {
+            return null;
+        }
+
+        return closestCell;
+    }
+
+    public void MergeRanks(DraggableRank draggedRank , DraggableRank targetRank)
+    {
+        if(draggedRank == null || targetRank == null || draggedRank.rankLevel != targetRank.rankLevel)  //같은 레벨이 아니면 합치기 실패
+        {
+            if (draggedRank != null) draggedRank.ReturnToOriginalPosition();
+            return;
+        }      
+
+        int newLevel = targetRank.rankLevel + 1;   //새 레벨 계산
+        if (newLevel > maxRankLevel)                //최대 레벨 초과 시 처리 
+        {
+            RemoveRank(draggedRank);                    //드래그한 계급장만 제거
+            return;
+        }
+
+        targetRank.SetRankLevel(newLevel);          //타겟 게급장 레벨 업그레이드
+        RemoveRank(draggedRank);                    //드래그한 계급장 제거
+
+        if (Random.Range(0, 100) < 60)            //60% 확률로 계급장 합치기 성공 시 랜덤으로 새 계급장 생성
+        {
+            SpawnNewRank();
+        }
+    }
+
+    public void RemoveRank(DraggableRank rank)      //계급장 제거 
+    {
+        if (rank == null) return;
+
+        if (rank.currentCell != null)           //칸에서 제거
+        {
+            rank.currentCell.currentRank = null;            
+        }
+
+        Destroy(rank.gameObject);           //게임 오브젝트 제거
     }
 }
