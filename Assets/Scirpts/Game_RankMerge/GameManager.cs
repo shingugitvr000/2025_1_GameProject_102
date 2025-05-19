@@ -70,7 +70,9 @@ public class GameManager : MonoBehaviour
         rankObj.name = "Rank_Lvel" + level;
 
         DraggableRank rank = rankObj.AddComponent<DraggableRank>();
-        rank.SetRankLevel(level);   
+        rank.SetRankLevel(level);
+
+        cell.SetRank(rank);
 
         return rank;
 
