@@ -48,7 +48,11 @@ public class SimpleBallController : MonoBehaviour
 
     void HandleInput()                      //입력 처리하기
     {
-        //턴 매니저가 허용하지 않으면 조작 불가 (추후 다른 시트 구현하면 마저 구현)
+        //턴 매니저가 허용하지 않으면 조작 불가 
+        if (!SimpleTurnManager.canPlay) return;
+
+        //다른 공이 움직일 때 
+        if (SimpleTurnManager.anyBallMoving) return;
 
         //공이 움직이고 있으면 조작 불가
         if (IsMoving()) return;
@@ -92,7 +96,8 @@ public class SimpleBallController : MonoBehaviour
 
         rb.AddForce(direction * force, ForceMode.Impulse);                              //공에 힘 적용
 
-        //턴 매니저에게 공을 쳤다고 알림(추후 구현)
+        //턴 매니저에게 공을 쳤다고 알림
+        SimpleTurnManager.OnBallHit();
 
         //정리 
 
